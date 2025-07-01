@@ -2,14 +2,14 @@ import torch
 import torch.optim as optim
 
 from model import TransformerClassifier
-from ttp import create_data_loaders, test, train
+from ttp import data_loaders, test, train
 
 
 def main():
     device = torch.device('mps')# if torch.backends.mps.is_available() else 'cpu')  # 使用MPS（如果可用）
 
     # 数据加载
-    train_loader, test_loader = create_data_loaders('data.csv')
+    train_loader, test_loader = data_loaders('data.csv')
 
     # 初始化模型、损失函数、优化器
     vocab_size = 858  # 根据数据集调整

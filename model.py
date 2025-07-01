@@ -3,25 +3,34 @@ import math
 import torch
 import torch.nn as nn
 
+from transformer.encoder import Encoder
+
 
 class TransformerClassifier(nn.Module):
     def __init__(self, vocab_size, d_model=128, nhead=16, num_encoder_layers=1, num_classes=17):
         super(TransformerClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, d_model, padding_idx=-1)  # 将输入数字映射到高维空间
-        self.positional_encoding = PositionalEncoding(d_model)
+        self.method = 0
+        if self.method:
+            self.embedding = nn.Embedding(vocab_size, d_model, padding_idx=-1)  # 将输入数字映射到高维空间
+            self.positional_encoding = PositionalEncoding(d_model)
 
-        encoder_layers = nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward=128)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_layers=num_encoder_layers)
+            encoder_layers = nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward=128)
+            self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_layers=num_encoder_layers)
+        else:
+            self.encoder = Encoder(vocab_size, d_model, nhead, num_encoder_layers, d_model*4, 0.1, True)
 
         self.fc_out = nn.Linear(d_model, num_classes)
 
     def forward(self, x):
-        # 添加位置编码
-        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
-        x = self.positional_encoding(x)
+        if self.method:
+            # 添加位置编码
+            x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+            x = self.positional_encoding(x)
 
-        # Transformer编码
-        output = self.transformer_encoder(x)
+            # Transformer编码
+            output = self.transformer_encoder(x)
+        else:
+            output = self.encoder(x)
 
         # 分类输出
         output = output.mean(dim=1)  # 对序列长度进行全局平均池化

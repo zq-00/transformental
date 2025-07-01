@@ -77,7 +77,7 @@ def test(model, test_loader, criterion, device):
     return total_loss / len(test_loader), accuracy
 
 
-def create_data_loaders(file_path, batch_size=32):
+def data_loaders(file_path, batch_size=32):
     X_train, X_test, y_train, y_test = prepare_data(file_path)
 
     train_dataset = TensorDataset(X_train, y_train)
